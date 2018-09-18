@@ -152,7 +152,7 @@ def main():
 
     # support_percentage = [30, 40, 50, 60, 70]
     # use 80 for testing
-    support_percentage = [80]
+    support_percentage = [60, 70]
     for support in support_percentage:
         fi = FrequentItemsets(prefixed_data, support)
         fi.get_frequent_itemsets()
