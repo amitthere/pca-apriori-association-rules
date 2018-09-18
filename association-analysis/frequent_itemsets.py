@@ -2,47 +2,6 @@ import numpy as np
 from itertools import combinations
 
 
-class FrequentItemsets:
-    """
-    Takes dataset and support as input and returns
-    itemsets satisfying those criterion
-    """
-
-    def __init__(self, dataset, support):
-        self.data = dataset
-        self.support = support
-        self.min_support_count = int(self.support * len(self.data) / 100)
-
-    def frequent_1_itemsets(self):
-        # Get unique items in the data with their frequency
-        one_itemsets = np.unique(self.data, False, False, True, None)
-        # Convert the unique items into dict, with value as frequency
-        one_itemsets_dict = dict(zip(one_itemsets[0], one_itemsets[1]))
-        # Use Comprehensions to get items with support about min value
-        frequent_one_itemsets = {k: v for k, v in one_itemsets_dict.items() if v >= self.min_support_count}
-
-        return list(frequent_one_itemsets.keys())
-
-    def combinations(self, itemset_list, k):
-        candidate_itemsets = []
-
-        for set in combinations(itemset_list, k + 1):
-            candidate_itemsets.append(set)
-
-        return candidate_itemsets
-
-    def get_itemset_support(self, itemset, data):
-        support = 0
-        for row in range(data.shape[0]):    # try to vectorize
-            if itemset.issubset(data[row]):
-                support = support + 1
-        return support
-
-    def get_frequent_itemsets(self):
-
-        return
-
-
 class Import:
     """
     Imports data from various sources.
@@ -95,9 +54,89 @@ class Import:
         return self.prefixed_data
 
 
+class FrequentItemsets:
+    """
+    Takes dataset and support as input and returns
+    itemsets satisfying those criterion
+    """
+
+    def __init__(self, dataset, support):
+        self.data = dataset
+        self.support = support
+        self.min_support_count = int(self.support * len(self.data) / 100)
+
+    def frequent_1_itemsets(self):
+        # Get unique items in the data with their frequency
+        one_itemsets = np.unique(self.data, False, False, True, None)
+        # Convert the unique items into dict, with value as frequency
+        one_itemsets_dict = dict(zip(one_itemsets[0], one_itemsets[1]))
+        # Use Comprehensions to get items with support about min value
+        frequent_one_itemsets = {k: v for k, v in one_itemsets_dict.items() if v >= self.min_support_count}
+
+        return list(frequent_one_itemsets.keys())
+
+    def combinations(self, itemset_list, k):
+        """
+        Generates Combinations of k+1 itemsets
+        Returns a list of sets
+        """
+        candidate_itemsets = []
+
+        for candidate in combinations(itemset_list, k + 1):
+            candidate_itemsets.append(set(candidate))
+
+        return candidate_itemsets
+
+    def get_itemset_support(self, itemset, data):
+        """ Compute support for single k-itemset """
+        support = 0
+        for row in range(data.shape[0]):    # try to vectorize
+            if itemset.issubset(data[row]):
+                support = support + 1
+        return support
+
+    def compute_support(self, itemsets):
+        """
+        Compute support for all itemsets with same k value.
+        Returns dict of itemset and support as key and value
+        """
+        support = []
+        for itemset in itemsets:
+            s = self.get_itemset_support(itemset, self.data)
+            support.append(s)
+        # itemsets has set which cannot be used as keys, find a way through
+        itemsets_dict = dict(zip(itemsets, support))
+        return itemsets_dict
+
+
+    def get_frequent_itemsets(self):
+        k = 1
+        fi = self.frequent_1_itemsets()
+
+        print('Support is set to be ' + str(self.support) + '%')
+        while len(fi) != 0:
+            self.logging(k, len(fi))
+
+            # generate combinations
+            itemsets = self.combinations(fi, k)
+            k = k + 1
+
+            # pruning step, IMPLEMENT LATER
+            # remove item-sets whose subsets are not frequent
+
+            # get their support values
+            itemsets_with_support = self.compute_support(itemsets)
+
+            # get their frequent itemsets
+            fi = {k: v for k, v in itemsets_with_support.items() if v >= self.min_support_count}
+        return
+
+    def logging(self, k, count):
+        print('Number of length-' + str(k) + ' frequent itemsets: ' + str(count))
+
 
 def main():
-    importObject = Import(r'..\data\associationruletestdata.txt', 'TAB')
+    importObject = Import(r'../data/associationruletestdata.txt', 'TAB')
     prefixed_data = importObject.process_data_3()
 
     support_percentage = [30, 40, 50, 60, 70]
