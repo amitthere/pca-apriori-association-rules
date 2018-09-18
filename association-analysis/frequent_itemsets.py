@@ -23,7 +23,11 @@ class FrequentItemsets:
 
         return list(frequent_one_itemsets.keys())
 
-    def combinations(self, item_list):
+    def combinations(self, itemset_list, k):
+        sets = []
+        for set in combinations(itemset_list, k + 1):
+            sets.append(set)
+
         return
 
 
@@ -86,4 +90,4 @@ i = Import(r'F:\Google Drive\University at Buffalo\Courses'
            r'\CSE 601 - Bioinformatics and Data Mining\PA1\associationruletestdata.txt', 'TAB')
 prefixed_data = i.process_data_3()
 
-print('')
+pass
