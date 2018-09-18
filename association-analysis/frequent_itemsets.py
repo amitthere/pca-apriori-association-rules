@@ -33,10 +33,14 @@ class FrequentItemsets:
 
     def get_itemset_support(self, itemset, data):
         support = 0
-        for row in range(data.shape[0]):
+        for row in range(data.shape[0]):    # try to vectorize
             if itemset.issubset(data[row]):
                 support = support + 1
         return support
+
+    def get_frequent_itemsets(self):
+
+        return
 
 
 class Import:
@@ -92,8 +96,15 @@ class Import:
 
 
 
+def main():
+    importObject = Import(r'..\data\associationruletestdata.txt', 'TAB')
+    prefixed_data = importObject.process_data_3()
 
-i = Import(r'..\data\associationruletestdata.txt', 'TAB')
-prefixed_data = i.process_data_3()
+    support_percentage = [30, 40, 50, 60, 70]
+    for support in support_percentage:
+        fi = FrequentItemsets(prefixed_data, support)
+        fi.get_frequent_itemsets()
 
-pass
+
+if __name__ == "__main__":
+    main()
