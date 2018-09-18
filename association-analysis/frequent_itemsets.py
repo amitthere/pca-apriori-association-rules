@@ -105,6 +105,7 @@ class FrequentItemsets:
             s = self.get_itemset_support(itemset, self.data)
             support.append(s)
         # itemsets has set which cannot be used as keys, find a way through
+        itemsets = self.set_to_str(itemsets)
         itemsets_dict = dict(zip(itemsets, support))
         return itemsets_dict
 
@@ -128,18 +129,30 @@ class FrequentItemsets:
             itemsets_with_support = self.compute_support(itemsets)
 
             # get their frequent itemsets
-            fi = {k: v for k, v in itemsets_with_support.items() if v >= self.min_support_count}
+            frequentitems = {k: v for k, v in itemsets_with_support.items() if v >= self.min_support_count}
+
+            fi = self.str_to_set(frequentitems.keys())
         return
 
     def logging(self, k, count):
         print('Number of length-' + str(k) + ' frequent itemsets: ' + str(count))
+
+    def set_to_str(self, set_list):
+        str_list = [','.join(i) for i in set_list]
+        return str_list
+
+    def str_to_set(self, str_list):
+        set_list = [set(i.split(',')) for i in str_list]
+        return set_list
 
 
 def main():
     importObject = Import(r'../data/associationruletestdata.txt', 'TAB')
     prefixed_data = importObject.process_data_3()
 
-    support_percentage = [30, 40, 50, 60, 70]
+    # support_percentage = [30, 40, 50, 60, 70]
+    # use 80 for testing
+    support_percentage = [80]
     for support in support_percentage:
         fi = FrequentItemsets(prefixed_data, support)
         fi.get_frequent_itemsets()
