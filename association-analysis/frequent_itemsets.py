@@ -1,4 +1,5 @@
 import numpy as np
+from itertools import combinations
 
 
 class FrequentItemsets:
@@ -10,6 +11,21 @@ class FrequentItemsets:
     def __init__(self, dataset, support):
         self.data = dataset
         self.support = support
+        self.min_support_count = int(self.support * len(self.data) / 100)
+
+    def frequent_1_itemsets(self):
+        # Get unique items in the data with their frequency
+        one_itemsets = np.unique(self.data, False, False, True, None)
+        # Convert the unique items into dict, with value as frequency
+        one_itemsets_dict = dict(zip(one_itemsets[0], one_itemsets[1]))
+        # Use Comprehensions to get items with support about min value
+        frequent_one_itemsets = {k: v for k, v in one_itemsets_dict.items() if v >= self.min_support_count}
+
+        return list(frequent_one_itemsets.keys())
+
+    def combinations(self, item_list):
+        return
+
 
 
 class Import:
@@ -69,3 +85,5 @@ class Import:
 i = Import(r'F:\Google Drive\University at Buffalo\Courses'
            r'\CSE 601 - Bioinformatics and Data Mining\PA1\associationruletestdata.txt', 'TAB')
 prefixed_data = i.process_data_3()
+
+print('')
