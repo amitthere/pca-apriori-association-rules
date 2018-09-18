@@ -24,12 +24,19 @@ class FrequentItemsets:
         return list(frequent_one_itemsets.keys())
 
     def combinations(self, itemset_list, k):
-        sets = []
+        candidate_itemsets = []
+
         for set in combinations(itemset_list, k + 1):
-            sets.append(set)
+            candidate_itemsets.append(set)
 
-        return
+        return candidate_itemsets
 
+    def get_itemset_support(self, itemset, data):
+        support = 0
+        for row in range(data.shape[0]):
+            if itemset.issubset(data[row]):
+                support = support + 1
+        return support
 
 
 class Import:
@@ -86,8 +93,7 @@ class Import:
 
 
 
-i = Import(r'F:\Google Drive\University at Buffalo\Courses'
-           r'\CSE 601 - Bioinformatics and Data Mining\PA1\associationruletestdata.txt', 'TAB')
+i = Import(r'..\data\associationruletestdata.txt', 'TAB')
 prefixed_data = i.process_data_3()
 
 pass
