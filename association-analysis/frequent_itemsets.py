@@ -75,7 +75,7 @@ class FrequentItemsets:
 
         return list(frequent_one_itemsets.keys())
 
-    def combinations(self, itemset_list, k):
+    def candidate_combinations(self, itemset_list, k):
         """
         Generates Combinations of k+1 itemsets
         Returns a list of sets
@@ -118,8 +118,8 @@ class FrequentItemsets:
         while len(fi) != 0:
             self.logging(k, len(fi))
 
-            # generate combinations
-            itemsets = self.combinations(fi, k)
+            # generate candidate_combinations
+            itemsets = self.candidate_combinations(fi, k)
             k = k + 1
 
             # pruning step, IMPLEMENT LATER
@@ -150,9 +150,7 @@ def main():
     importObject = Import(r'../data/associationruletestdata.txt', 'TAB')
     prefixed_data = importObject.process_data_3()
 
-    # support_percentage = [30, 40, 50, 60, 70]
-    # use 80 for testing
-    support_percentage = [60, 70]
+    support_percentage = [70, 60, 50, 40, 30]
     for support in support_percentage:
         fi = FrequentItemsets(prefixed_data, support)
         fi.get_frequent_itemsets()
