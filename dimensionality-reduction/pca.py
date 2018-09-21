@@ -30,6 +30,8 @@ def eigen_values(file):
     #print(covar)
     w,v=np.linalg.eig(covar)
     print(w)
+    print('____________')
+    print(v)
 
 def main():
     file1 = Import("../data/pca_a.txt", "TAB")
