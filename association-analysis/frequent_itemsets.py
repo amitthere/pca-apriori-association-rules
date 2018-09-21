@@ -68,12 +68,46 @@ class FrequentItemsets:
     def frequent_1_itemsets(self):
         # Get unique items in the data with their frequency
         one_itemsets = np.unique(self.data, False, False, True, None)
+
         # Convert the unique items into dict, with value as frequency
         one_itemsets_dict = dict(zip(one_itemsets[0], one_itemsets[1]))
+
         # Use Comprehensions to get items with support about min value
         frequent_one_itemsets = {k: v for k, v in one_itemsets_dict.items() if v >= self.min_support_count}
 
         return list(frequent_one_itemsets.keys())
+
+    def generate_combinations(self, itemset_list, k):
+
+        allset = self.merge_sets(itemset_list)
+        candidate_itemsets = []
+
+        # Approach 1
+        for candidate in combinations(allset, k + 1):
+            if self.is_candidate_valid(itemset_list, candidate, k):
+                candidate_itemsets.append(set(candidate))
+
+        # Approach 2
+        # for candidate in combinations(allset, k + 1):
+        #     for s in combinations(candidate, k):
+        #         if frozenset(s).issubset(fi_set) == False:
+        #             break
+
+        return candidate_itemsets
+
+    def is_candidate_valid(self, itemsets, candidate, k):
+        """ Checks if a generated candidate itemset is valid candidate"""
+
+        fi_set = set(frozenset(item) for item in itemsets)
+        subsets = set()
+        valid = False
+
+        for s in combinations(candidate, k):
+            subsets.add(frozenset(s))
+
+        if subsets.issubset(fi_set):
+            valid = True
+        return valid
 
     def candidate_combinations(self, itemset_list, k):
         """
@@ -114,12 +148,13 @@ class FrequentItemsets:
         k = 1
         fi = self.frequent_1_itemsets()
 
-        print('Support is set to be ' + str(self.support) + '%')
+        print('Support is set to ' + str(self.support) + '%')
         while len(fi) != 0:
             self.logging(k, len(fi))
 
             # generate candidate_combinations
-            itemsets = self.candidate_combinations(fi, k)
+            # itemsets = self.candidate_combinations(fi, k)
+            itemsets = self.generate_combinations(fi, k)
             k = k + 1
 
             # pruning step, IMPLEMENT LATER
@@ -145,12 +180,21 @@ class FrequentItemsets:
         set_list = [set(i.split(',')) for i in str_list]
         return set_list
 
+    def merge_sets(self, list):
+        """Returns set of items from a list of sets"""
+        merged_set = set()
+        for s in list:
+            merged_set.update(s)
+        return merged_set
+
+
 
 def main():
     importObject = Import(r'../data/associationruletestdata.txt', 'TAB')
     prefixed_data = importObject.process_data_3()
 
-    support_percentage = [70, 60, 50, 40, 30]
+    # support_percentage = [70, 60, 50, 40, 30]
+    support_percentage = [50]
     for support in support_percentage:
         fi = FrequentItemsets(prefixed_data, support)
         fi.get_frequent_itemsets()
