@@ -15,7 +15,7 @@ class Import:
     def import_tab_file(self, tabfile):
         self.data = np.genfromtxt(tabfile, dtype=str, delimiter='\t')
 
-def normalize_matrix(file):
+def eigen_values(file):
     matrix1 = file.data[:,0:4]
     m1 = np.array(matrix1.astype(np.float))
     #print(m1)
@@ -27,13 +27,15 @@ def normalize_matrix(file):
     #print(centered1)
 
     covar = np.cov(centered1)
-    print(covar)
+    #print(covar)
+    w,v=np.linalg.eig(covar)
+    print(w)
 
 def main():
     file1 = Import("../data/pca_a.txt", "TAB")
     #file2 = Import("../data/pca_b.txt", "TAB")
     #file3 = Import("../data/pca_c.txt", "TAB")
-    normalize_matrix(file1)
+    eigen_values(file1)
 
 if __name__=="__main__":
     main()
