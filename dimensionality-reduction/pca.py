@@ -1,4 +1,7 @@
 import numpy as np
+from sklearn.decomposition import TruncatedSVD
+import operator
+from sklearn.manifold import TSNE
 
 class Import:
     """
@@ -15,29 +18,66 @@ class Import:
     def import_tab_file(self, tabfile):
         self.data = np.genfromtxt(tabfile, dtype=str, delimiter='\t')
 
+def matrix_manipulation(file):
+    matrix = file.data[:,0:4]
+    m1 = np.array(matrix.astype(np.float))
+    last_col = file.data[:,-1]
+    last_col_m = np.asmatrix(last_col, dtype='U')
+    last = last_col_m.transpose()
+    return m1, last
+
 def eigen_values(file):
-    matrix1 = file.data[:,0:4]
-    m1 = np.array(matrix1.astype(np.float))
-    #print(m1)
+    m1, last = matrix_manipulation(file)
+    m1_transp = m1.transpose()
+    #print(m1.shape)
 
     mean_vector1 = np.mean(m1, axis= 0)
     #print(mean_vector1)
 
-    centered1 = mean_vector1 - m1
+    centered1 = m1 - mean_vector1
     #print(centered1)
 
-    covar = np.cov(centered1)
+    covprep = centered1.T
+    covar = np.cov(covprep)
     #print(covar)
-    w,v=np.linalg.eig(covar)
-    print(w)
-    print('____________')
-    print(v)
+    eig_val, eig_vec = np.linalg.eigh(covar)
+    #print(eig_val)
+    #print('____________')
+    print(eig_vec.shape[1])
+    #print('____________')
+    k = dict()
+    for i in range(eig_vec.shape[1]):
+        k[eig_val[i]] = eig_vec[i]
+    eig_mat = sorted(k.items(), key = operator.itemgetter(0), reverse = True)
+    eig_mat = eig_mat[:2]
+    #print(eig_mat)
+    answer = np.concatenate((eig_mat[0][1][:,None], eig_mat[1][1][:,None]), axis = 1)
+    Y = m1.dot(answer)
+    #print(Y)
+    return Y
+
+def svd_function(file):
+    matrix, lastcol = matrix_manipulation(file)
+    svd = TruncatedSVD(n_components=2)
+    svd_res = svd.fit_transform(matrix)
+    svd_res = np.concatenate((svd_res, lastcol), axis = 1)
+    return svd_res
+    print(svd_res)
+
+def tsne_function(file):
+    m1, lastcol = matrix_manipulation(file)
+    tsne = TSNE(n_components=2)
+    tsne_res = tsne.fit_transform(m1)
+    tsne_result = np.concatenate((tsne_res, lastcol), axis= 1)
+    print(tsne_result)
+    return tsne_result
 
 def main():
     file1 = Import("../data/pca_a.txt", "TAB")
     #file2 = Import("../data/pca_b.txt", "TAB")
     #file3 = Import("../data/pca_c.txt", "TAB")
-    eigen_values(file1)
-
+    #eigen_values(file1)
+    #svd_function(file1)
+    tsne_function(file1)
 if __name__=="__main__":
     main()
