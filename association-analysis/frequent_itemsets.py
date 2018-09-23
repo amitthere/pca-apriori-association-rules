@@ -75,6 +75,8 @@ class FrequentItemsets:
         # Use Comprehensions to get items with support about min value
         frequent_one_itemsets = {k: v for k, v in one_itemsets_dict.items() if v >= self.min_support_count}
 
+        self.log_frequent_itemsets(frequent_one_itemsets, k=1)
+
         return list(frequent_one_itemsets.keys())
 
     def generate_combinations(self, itemset_list, k):
@@ -157,7 +159,7 @@ class FrequentItemsets:
         k = 1
         fi = self.frequent_1_itemsets()
 
-        print('Support is set to ' + str(self.support) + '%')
+        print('\nSupport is set to ' + str(self.support) + '%')
         while len(fi) != 0:
             self.logging(k, len(fi))
 
@@ -175,11 +177,22 @@ class FrequentItemsets:
             # get their frequent itemsets
             frequentitems = {k: v for k, v in itemsets_with_support.items() if v >= self.min_support_count}
 
+            self.log_frequent_itemsets(frequentitems, k)
+
             fi = self.str_to_set(frequentitems.keys())
         return
 
     def logging(self, k, count):
         print('Number of length-' + str(k) + ' frequent itemsets: ' + str(count))
+
+    def log_frequent_itemsets(self, fi, k):
+        if len(fi) == 0:
+            return
+        file = r'../output/' + str(self.support) + '-' + str(k) + '-' + 'itemsets.txt'
+        with open(file,'w') as f:
+            for k, v in fi.items():
+                f.write(k + '\t' + str(v) + '\n')
+        return
 
     def set_to_str(self, set_list):
         str_list = [','.join(i) for i in set_list]
@@ -206,8 +219,8 @@ def main():
     importObject = Import(r'../data/associationruletestdata.txt', 'TAB')
     prefixed_data = importObject.process_data_3()
 
-    # support_percentage = [70, 60, 50, 40, 30]
-    support_percentage = [50]
+    support_percentage = [70, 60, 50, 40, 30]
+    # support_percentage = [50]
     for support in support_percentage:
         fi = FrequentItemsets(prefixed_data, support)
         fi.get_frequent_itemsets()
