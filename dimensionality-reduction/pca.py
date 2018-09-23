@@ -41,20 +41,10 @@ def eigen_values(file):
     covar = np.cov(covprep)
     #print(covar)
     eig_val, eig_vec = np.linalg.eigh(covar)
-    #print(eig_val)
-    #print('____________')
-    print(eig_vec.shape[1])
-    #print('____________')
-    k = dict()
-    for i in range(eig_vec.shape[1]):
-        k[eig_val[i]] = eig_vec[i]
-    eig_mat = sorted(k.items(), key = operator.itemgetter(0), reverse = True)
-    eig_mat = eig_mat[:2]
-    #print(eig_mat)
-    answer = np.concatenate((eig_mat[0][1][:,None], eig_mat[1][1][:,None]), axis = 1)
-    Y = m1.dot(answer)
-    #print(Y)
-    return Y
+    print(eig_val)
+    print('____________')
+    print(eig_vec)
+    print('____________')
 
 def svd_function(file):
     matrix, lastcol = matrix_manipulation(file)
@@ -77,7 +67,7 @@ def main():
     #file2 = Import("../data/pca_b.txt", "TAB")
     #file3 = Import("../data/pca_c.txt", "TAB")
     #eigen_values(file1)
-    #svd_function(file1)
+    svd_function(file1)
     tsne_function(file1)
 if __name__=="__main__":
     main()
