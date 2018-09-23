@@ -78,13 +78,20 @@ class FrequentItemsets:
         return list(frequent_one_itemsets.keys())
 
     def generate_combinations(self, itemset_list, k):
-
-        allset = self.merge_sets(itemset_list)
+        """
+            Generates Combinations of k+1 itemsets
+            Returns a list of sets
+        """
+        allset = self.merge_sets(itemset_list, k)
+        if k == 1:
+            fi_set = set((item,) for item in itemset_list)
+        else:
+            fi_set = set(frozenset(item) for item in itemset_list)
         candidate_itemsets = []
 
         # Approach 1
         for candidate in combinations(allset, k + 1):
-            if self.is_candidate_valid(itemset_list, candidate, k):
+            if self.is_candidate_valid(fi_set, candidate, k):
                 candidate_itemsets.append(set(candidate))
 
         # Approach 2
@@ -95,15 +102,17 @@ class FrequentItemsets:
 
         return candidate_itemsets
 
-    def is_candidate_valid(self, itemsets, candidate, k):
+    def is_candidate_valid(self, fi_set, candidate, k):
         """ Checks if a generated candidate itemset is valid candidate"""
 
-        fi_set = set(frozenset(item) for item in itemsets)
         subsets = set()
         valid = False
 
         for s in combinations(candidate, k):
-            subsets.add(frozenset(s))
+            if k == 1:
+                subsets.add(s)
+            else:
+                subsets.add(frozenset(s))
 
         if subsets.issubset(fi_set):
             valid = True
@@ -180,11 +189,15 @@ class FrequentItemsets:
         set_list = [set(i.split(',')) for i in str_list]
         return set_list
 
-    def merge_sets(self, list):
+    def merge_sets(self, list, k):
         """Returns set of items from a list of sets"""
         merged_set = set()
-        for s in list:
-            merged_set.update(s)
+        if k == 1:
+            for s in list:
+                merged_set.add(s)
+        else:
+            for s in list:
+                merged_set.update(s)
         return merged_set
 
 
