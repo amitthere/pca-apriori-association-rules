@@ -40,7 +40,6 @@ class Import:
             for col in range(self.data.shape[1] - 1):
                 prefix = 'G' + str(col + 1) + '_'
                 self.data_slow[row][col] = prefix + str(self.data[row][col])
-                # print('r:',row,' c:',col,' prefix:',prefix,' ds:',self.data_slow[row][col])
 
         return self.data_slow
 
@@ -158,10 +157,12 @@ class FrequentItemsets:
     def get_frequent_itemsets(self):
         k = 1
         fi = self.frequent_1_itemsets()
+        count = 0
 
         print('\nSupport is set to ' + str(self.support) + '%')
         while len(fi) != 0:
             self.logging(k, len(fi))
+            count  = count + len(fi)
 
             # generate candidate_combinations
             # itemsets = self.candidate_combinations(fi, k)
@@ -180,7 +181,7 @@ class FrequentItemsets:
             self.log_frequent_itemsets(frequentitems, k)
 
             fi = self.str_to_set(frequentitems.keys())
-        return
+        return count
 
     def logging(self, k, count):
         print('Number of length-' + str(k) + ' frequent itemsets: ' + str(count))
@@ -214,16 +215,15 @@ class FrequentItemsets:
         return merged_set
 
 
-
 def main():
     importObject = Import(r'../data/associationruletestdata.txt', 'TAB')
     prefixed_data = importObject.process_data_3()
 
     support_percentage = [70, 60, 50, 40, 30]
-    # support_percentage = [50]
     for support in support_percentage:
         fi = FrequentItemsets(prefixed_data, support)
-        fi.get_frequent_itemsets()
+        count = fi.get_frequent_itemsets()
+        print('Number of all lengths frequent itemsets: ' + str(count))
 
 
 if __name__ == "__main__":
