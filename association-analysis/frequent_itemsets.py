@@ -62,6 +62,8 @@ class FrequentItemsets:
     def __init__(self, dataset, support):
         self.data = dataset
         self.support = support
+        self.frequent_itemsets_1 = None
+        self.all_frequent_itemsets = None
         self.min_support_count = int(self.support * len(self.data) / 100)
 
     def frequent_1_itemsets(self):
@@ -75,8 +77,10 @@ class FrequentItemsets:
         frequent_one_itemsets = {k: v for k, v in one_itemsets_dict.items() if v >= self.min_support_count}
 
         self.log_frequent_itemsets(frequent_one_itemsets, k=1)
+        self.frequent_itemsets_1 = list(frequent_one_itemsets.keys())
+        self.all_frequent_itemsets = frequent_one_itemsets
 
-        return list(frequent_one_itemsets.keys())
+        return self.frequent_itemsets_1
 
     def generate_combinations(self, itemset_list, k):
         """
@@ -179,6 +183,7 @@ class FrequentItemsets:
             frequentitems = {k: v for k, v in itemsets_with_support.items() if v >= self.min_support_count}
 
             self.log_frequent_itemsets(frequentitems, k)
+            self.all_frequent_itemsets = dict(self.all_frequent_itemsets, **frequentitems)
 
             fi = self.str_to_set(frequentitems.keys())
         return count
@@ -220,10 +225,15 @@ def main():
     prefixed_data = importObject.process_data_3()
 
     support_percentage = [70, 60, 50, 40, 30]
+    frequentitems = []
     for support in support_percentage:
         fi = FrequentItemsets(prefixed_data, support)
         count = fi.get_frequent_itemsets()
+        frequentitems.append(fi)
         print('Number of all lengths frequent itemsets: ' + str(count))
+
+    for f in frequentitems:
+        print('For support of '+ str(f.support) + '% total no of frequent itemsets : ' + str(len(f.all_frequent_itemsets)))
 
 
 if __name__ == "__main__":
