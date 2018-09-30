@@ -3,6 +3,7 @@ from sklearn.decomposition import TruncatedSVD
 import operator
 from sklearn.manifold import TSNE
 import matplotlib.pyplot as plt
+import seaborn as sb
 
 class Import:
     """
@@ -34,11 +35,7 @@ def eigen_values(file):
     m1, last, centered = matrix_manipulation(file)
     covprep = centered.T
     covar = np.cov(covprep)
-    eig_val, eig_vec = np.linalg.eigh(covar)
-    #print(eig_val)
-    #print('____________')
-    #print(eig_vec)
-    #print('____________')
+    eig_val, eig_vec = np.linalg.eig(covar)
     eig_vec_t = eig_vec.transpose()
     eig_vec_shape = eig_vec_t.shape[1]
     eig_pairs = {}
@@ -46,17 +43,7 @@ def eigen_values(file):
         eig_pairs[eig_val[i]] = eig_vec[i]
     eig_matrix = sorted(eig_pairs.items(), key = lambda x: x[0], reverse = True)
     eig_matrix = eig_matrix[:2]
-    #print('k',eig_matrix)
     return eig_matrix, last
-
-
-    """eig_matr = []
-    sort_index = eig_val.argsort()[::-1]
-    for i in range(len(eig_val)):
-        eig_matr.append(eig_val[i], eig_vec[:,i])
-    eig_matr.sort()
-    eig_matr.reverse()
-    print('k1', eig_matr)"""
 
 def final_matrix(eig_matrix, file):
     m1, last, centered = matrix_manipulation(file)
@@ -68,7 +55,7 @@ def final_matrix(eig_matrix, file):
     return plot_data
 
 def svd_function(file):
-    matrix, lastcol = matrix_manipulation(file)
+    matrix, lastcol, centered = matrix_manipulation(file)
     svd = TruncatedSVD(n_components=2)
     svd_res = svd.fit_transform(matrix)
     svd_res = np.concatenate((svd_res, lastcol), axis = 1)
@@ -77,42 +64,51 @@ def svd_function(file):
 
 
 def tsne_function(file):
-    m1, lastcol = matrix_manipulation(file)
+    m1, lastcol, centered = matrix_manipulation(file)
     tsne = TSNE(n_components=2)
     tsne_res = tsne.fit_transform(m1)
     tsne_result = np.concatenate((tsne_res, lastcol), axis= 1)
     #print(type(tsne_result))
     return tsne_result
 
-def plot_scatter(result, last):
+def plot_scatter(result, last, type):
     fig = plt.figure()
     asd = np.ravel(last)
     labels = []
     for labl in asd:
         if labl not in labels:
             labels.append(labl)
-    #labelss = set(labels)
-    for lbl in labels:
-        cond = last == lbl
-        plt.plot(result[:,0], result[:,1], label =  lbl)
+    #print(labels)
+    sb.scatterplot(float(result[:,0]), float(result[:,1]), hue = asd)
     plt.xlabel('Component 1')
     plt.xlabel('Component 2')
-    plt.title('Principle Component Analysis')
+    if type == 'pca':
+        plt.title('Principle Component Analysis')
+    elif type == 'svd':
+        plt.title('SVD')
+    elif type == 'tsna':
+        plt.title('TSNE')
     plt.legend()
     plt.show()
 
 
 def main():
     file1 = Import("../data/pca_a.txt", "TAB")
-    #file2 = Import("../data/pca_b.txt", "TAB")
-    #file3 = Import("../data/pca_c.txt", "TAB")
+    file2 = Import("../data/pca_b.txt", "TAB")
+    file3 = Import("../data/pca_c.txt", "TAB")
 
     eig_matrix, last = eigen_values(file1)
-    plot_data = final_matrix(eig_matrix, file1)
-    #print(plot_data)
-    plot_scatter(plot_data, last)
-    #svd_function(file1)
-    #tsne_function(file1)
+    pca_data = final_matrix(eig_matrix, file1)
+    print(pca_data)
+    plot_scatter(pca_data, last, 'pca')
+    svd_data = svd_function(file1)
+    print("-----------------")
+    print(svd_data)
+    plot_scatter(svd_data, last, 'svd')
+    tsne_data = tsne_function(file1)
+    print('-----------------')
+    print(tsne_data)
+    plot_scatter(tsne_data, last, 'tsne')
 
 if __name__=="__main__":
     main()
