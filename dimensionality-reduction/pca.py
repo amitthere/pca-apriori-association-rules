@@ -86,11 +86,15 @@ def tsne_function(file):
 
 def plot_scatter(result, last):
     fig = plt.figure()
-    x = result[:,0]
-    y = result[:,1]
-    z = last
-    print(z)
-    plt.scatter(x, y)
+    asd = np.ravel(last)
+    labels = []
+    for labl in asd:
+        if labl not in labels:
+            labels.append(labl)
+    #labelss = set(labels)
+    for lbl in labels:
+        cond = last == lbl
+        plt.plot(result[:,0], result[:,1], label =  lbl)
     plt.xlabel('Component 1')
     plt.xlabel('Component 2')
     plt.title('Principle Component Analysis')
