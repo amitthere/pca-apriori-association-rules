@@ -1,6 +1,5 @@
 import numpy as np
 from sklearn.decomposition import TruncatedSVD
-import operator
 from sklearn.manifold import TSNE
 import matplotlib.pyplot as plt
 import seaborn as sb
@@ -21,6 +20,12 @@ class Import:
         self.data = np.genfromtxt(tabfile, dtype=str, delimiter='\t')
 
 def matrix_manipulation(file):
+    """
+    Takes the file and
+    returns the matrix for which you find covariance
+    and eigen values and eigen vectors, normalized matrix and last column
+    for labels in scatter plot
+    """
     matrix = file.data[:,0:4]
     m1 = np.array(matrix.astype(np.float))
     last_col = file.data[:,-1]
@@ -32,6 +37,11 @@ def matrix_manipulation(file):
     return m1, last, centered
 
 def eigen_values(file):
+    """
+    Takes the file and returns eigen matrix
+    that contains eigen values and eigen vectors
+    sorted according to eigen values
+    """
     m1, last, centered = matrix_manipulation(file)
     covprep = centered.T
     covar = np.cov(covprep)
@@ -45,52 +55,88 @@ def eigen_values(file):
     eig_matrix = eig_matrix[:2]
     return eig_matrix, last
 
-def final_matrix(eig_matrix, file):
+def final_pca_matrix(eig_matrix, file):
+    """
+    Returns the final PCA data to be plotted
+    """
     m1, last, centered = matrix_manipulation(file)
     m1_transp = m1.transpose()
-    #print(centered)
     data = np.concatenate((eig_matrix[0][1][:,None], eig_matrix[1][1][:,None]), axis = 1)
     plot_data = centered.dot(data)
-    #print(plot_data)
     return plot_data
 
 def svd_function(file):
+    """
+    Uses TruncatedSVD function from sklearn package
+    and returns svd data to be plotted
+    """
     matrix, lastcol, centered = matrix_manipulation(file)
     svd = TruncatedSVD(n_components=2)
     svd_res = svd.fit_transform(matrix)
     svd_res = np.concatenate((svd_res, lastcol), axis = 1)
-    #print(type(svd_res))
-    return svd_res
+    svd_1 = svd_res[:,0]
+    svd_2 = svd_res[:,1]
+    svd_x1 = np.ravel(svd_1)
+    svd_y1 = np.ravel(svd_2)
+    svd_x = svd_x1.astype(float)
+    svd_y = svd_y1.astype(float)
+    return svd_x, svd_y
 
 
 def tsne_function(file):
+    """
+    Uses TSNE from sklearn package and
+    returns tsne data to be plotted
+    """
     m1, lastcol, centered = matrix_manipulation(file)
     tsne = TSNE(n_components=2)
     tsne_res = tsne.fit_transform(m1)
     tsne_result = np.concatenate((tsne_res, lastcol), axis= 1)
-    #print(type(tsne_result))
-    return tsne_result
+    #print(tsne_result)
+    tsne_1 = tsne_result[:,0]
+    tsne_2 = tsne_result[:,1]
+    tsne_x1 = np.ravel(tsne_1)
+    tsne_y1 = np.ravel(tsne_2)
+    tsne_x = tsne_x1.astype(float)
+    tsne_y = tsne_y1.astype(float)
+    return tsne_x, tsne_y
 
-def plot_scatter(result, last, type):
+def plot_scatter(result, last):
+    """
+    Plots a scatter plot for PCA data
+    """
     fig = plt.figure()
     asd = np.ravel(last)
     labels = []
     for labl in asd:
         if labl not in labels:
             labels.append(labl)
-    #print(labels)
-    sb.scatterplot(float(result[:,0]), float(result[:,1]), hue = asd)
+    sb.scatterplot(result[:,0], result[:,1], hue = asd)
     plt.xlabel('Component 1')
     plt.xlabel('Component 2')
-    if type == 'pca':
-        plt.title('Principle Component Analysis')
-    elif type == 'svd':
-        plt.title('SVD')
-    elif type == 'tsna':
-        plt.title('TSNE')
+    plt.title('Principle Component Analysis')
     plt.legend()
     plt.show()
 
+def plot_scatter_svd_tsne(x, y, last, type):
+    """
+    Plots scatter plot for SVD and TSNE data
+    """
+    fig = plt.figure()
+    asd = np.ravel(last)
+    labels = []
+    for labl in asd:
+        if labl not in labels:
+            labels.append(labl)
+    sb.scatterplot(x, y, hue=asd)
+    plt.xlabel('Component 1')
+    plt.ylabel('Component 2')
+    if type == 'svd':
+        plt.title('SVD')
+    elif type == 'tsne':
+        plt.title('TSNE')
+    plt.legend()
+    plt.show()
 
 def main():
     file1 = Import("../data/pca_a.txt", "TAB")
@@ -98,17 +144,12 @@ def main():
     file3 = Import("../data/pca_c.txt", "TAB")
 
     eig_matrix, last = eigen_values(file1)
-    pca_data = final_matrix(eig_matrix, file1)
-    print(pca_data)
-    plot_scatter(pca_data, last, 'pca')
-    svd_data = svd_function(file1)
-    print("-----------------")
-    print(svd_data)
-    plot_scatter(svd_data, last, 'svd')
-    tsne_data = tsne_function(file1)
-    print('-----------------')
-    print(tsne_data)
-    plot_scatter(tsne_data, last, 'tsne')
+    pca_data = final_pca_matrix(eig_matrix, file1)
+    plot_scatter(pca_data, last)
+    svd_x, svd_y = svd_function(file1)
+    plot_scatter_svd_tsne(svd_x, svd_y, last, 'svd')
+    tsne_x, tsne_y = tsne_function(file1)
+    plot_scatter_svd_tsne(tsne_x, tsne_y, last, 'tsne')
 
 if __name__=="__main__":
     main()
