@@ -77,7 +77,7 @@ class FrequentItemsets:
         frequent_one_itemsets = {k: v for k, v in one_itemsets_dict.items() if v >= self.min_support_count}
 
         self.log_frequent_itemsets(frequent_one_itemsets, k=1)
-        self.frequent_itemsets_1 = list(frequent_one_itemsets.keys())
+        self.frequent_itemsets_1 = frequent_one_itemsets
         self.all_frequent_itemsets = frequent_one_itemsets
 
         return self.frequent_itemsets_1
