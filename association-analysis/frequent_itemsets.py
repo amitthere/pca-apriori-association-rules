@@ -161,12 +161,10 @@ class FrequentItemsets:
     def get_frequent_itemsets(self):
         k = 1
         fi = self.frequent_1_itemsets()
-        count = 0
 
         print('\nSupport is set to ' + str(self.support) + '%')
         while len(fi) != 0:
             self.logging(k, len(fi))
-            count  = count + len(fi)
 
             # generate candidate_combinations
             # itemsets = self.candidate_combinations(fi, k)
@@ -186,7 +184,7 @@ class FrequentItemsets:
             self.all_frequent_itemsets = dict(self.all_frequent_itemsets, **frequentitems)
 
             fi = self.str_to_set(frequentitems.keys())
-        return count
+        return
 
     def logging(self, k, count):
         print('Number of length-' + str(k) + ' frequent itemsets: ' + str(count))
@@ -228,9 +226,9 @@ def main():
     frequentitems = []
     for support in support_percentage:
         fi = FrequentItemsets(prefixed_data, support)
-        count = fi.get_frequent_itemsets()
+        fi.get_frequent_itemsets()
         frequentitems.append(fi)
-        print('Number of all lengths frequent itemsets: ' + str(count))
+        print('Number of all lengths frequent itemsets: ' + str(len(fi.all_frequent_itemsets)))
 
     for f in frequentitems:
         print('For support of '+ str(f.support) + '% total no of frequent itemsets : ' + str(len(f.all_frequent_itemsets)))
