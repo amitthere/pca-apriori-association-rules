@@ -472,8 +472,26 @@ class AssociationRules:
                 rules, number = self.template2(part, size)
                 self.print_query_output(rules, number)
             elif template == '3':
-                pass
-
+                type = input('Enter argument 1 :')
+                try:
+                    if type not in ['1or1', '1and1', '1or2', '1and2', '2or2', '2and2']:
+                        print('Please enter correct values.')
+                        continue
+                    elif type == '1or1' or type == '1and1':
+                        arg0, arg1, arg2 = self.read_template1_args()
+                        arg3, arg4, arg5 = self.read_template1_args()
+                        rules, number = self.template3(type, arg0, arg1, arg2, arg3, arg4, arg5)
+                    elif type == '1or2' or type == '1and2':
+                        arg0, arg1, arg2 = self.read_template1_args()
+                        arg3, arg4  = self.read_template2_args()
+                        rules, number = self.template3(type, arg0, arg1, arg2, arg3, arg4)
+                    elif type == '2or2' or type == '2and2':
+                        arg0, arg1 = self.read_template2_args()
+                        arg2, arg3 = self.read_template2_args()
+                        rules, number = self.template3(type, arg0, arg1, arg2, arg3)
+                except:
+                    continue
+                self.print_query_output(rules, number)
         return
 
     def print_query_output(self, rules, number):
