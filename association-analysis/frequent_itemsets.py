@@ -248,7 +248,7 @@ class AssociationRules:
                         if sitem.issubset(rule[0]) or sitem.issubset(rule[1]):
                             result.remove(rule)
                             break
-            elif count == 1:
+            elif count == '1':
                 # use enumerate to collect rule indices, avoid duplicates
                 for rule in self.rules:
                     for item in items:
@@ -256,19 +256,17 @@ class AssociationRules:
                         if sitem.issubset(rule[0]) or sitem.issubset(rule[1]):
                             temp_items = copy.deepcopy(items)
                             temp_items.remove(item)
-                            # if self.check_items(rule, temp_items):
 
                             # check if rest of the items are in the rule
                             for ri in temp_items:
-                                ritem = set((item,))
+                                ritem = set((ri,))
                                 if ritem.issubset(rule[0]) or ritem.issubset(rule[1]):
                                     break
                             else:   # this else block is ONLY executed if above for loop did NOT break
                                 result.append(rule)
                                 continue
                             break   # this executes ONLY if inner loop DID break,
-
-        elif part == 'BODY':
+        elif part == 'HEAD':
             if count == 'ANY':
                 for rule in self.rules:
                     for item in items:
@@ -284,25 +282,25 @@ class AssociationRules:
                         if sitem.issubset(rule[0]):
                             result.remove(rule)
                             break
-            elif count == 1:
+            elif count == '1':
                 for rule in self.rules:
                     for item in items:
                         sitem = set((item,))
                         if sitem.issubset(rule[0]):
                             temp_items = copy.deepcopy(items)
                             temp_items.remove(item)
-                            # if self.check_items(rule, temp_items):
 
                             # check if rest of the items are in the rule
                             for ri in temp_items:
-                                ritem = set((item,))
+                                ritem = set((ri,))
                                 if ritem.issubset(rule[0]):
                                     break
                             else:   # this else block is ONLY executed if above for loop did NOT break
                                 result.append(rule)
                                 continue
                             break
-        elif part == 'HEAD':
+
+        elif part == 'BODY':
             if count == 'ANY':
                 for rule in self.rules:
                     for item in items:
@@ -318,18 +316,17 @@ class AssociationRules:
                         if sitem.issubset(rule[1]):
                             result.remove(rule)
                             break
-            elif count == 1:
+            elif count == '1':
                 for rule in self.rules:
                     for item in items:
                         sitem = set((item,))
                         if sitem.issubset(rule[1]):
                             temp_items = copy.deepcopy(items)
                             temp_items.remove(item)
-                            # if self.check_items(rule, temp_items):
 
                             # check if rest of the items are in the rule
                             for ri in temp_items:
-                                ritem = set((item,))
+                                ritem = set((ri,))
                                 if ritem.issubset(rule[1]):
                                     break
                             else:   # this else block is ONLY executed if above for loop did NOT break
@@ -347,11 +344,11 @@ class AssociationRules:
                 itemset = rule[0].union(rule[1])
                 if len(itemset) >= size:
                     result.append(rule)
-        elif part == 'BODY':
+        elif part == 'HEAD':
             for rule in self.rules:
                 if len(rule[0]) >= size:
                     result.append(rule)
-        elif part == 'HEAD':
+        elif part == 'BODY':
             for rule in self.rules:
                 if len(rule[1]) >= size:
                     result.append(rule)
@@ -359,6 +356,8 @@ class AssociationRules:
 
 
     def template3(self, type, *args):
+        if type == '1or1':
+            pass
         return
 
     def get_itemset_support(self, itemset, data):
@@ -373,7 +372,7 @@ class AssociationRules:
         fi_g2 = {k:v for k,v in self.fi.all_frequent_itemsets.items() if k not in self.fi.frequent_itemsets_1}
 
         print('\nConfidence is set to : ' + str(self.confidence) + '%')
-        # Rule is : BODY -> HEAD
+        # Rule is : HEAD -> BODY
 
         # iterate through all frequent itemsets of length > 1
         for itemset in fi_g2:
@@ -394,15 +393,11 @@ class AssociationRules:
                     deno = self.get_itemset_support(set(subset), self.fi.data)
                     confidence = float(num)/float(deno)
 
-                    # option 2
-                    # subset is BODY here and (itemset - subset) is HEAD
-                    # since both must be frequent, get their support from all_frequent_itemsets dictionary
-
                     # if rule has enough confidence, add it to the set of rules
                     if (confidence*100) >= self.confidence:
-                        r_body = set(subset)
-                        r_head = (set(all_items) - set(subset))
-                        rule = [r_body, r_head]
+                        r_head = set(subset)
+                        r_body = (set(all_items) - set(subset))
+                        rule = [r_head, r_body]
                         self.rules.append(rule)
 
         return
@@ -419,7 +414,7 @@ class AssociationRules:
                     print('Please enter correct values.')
                     continue
                 count = input('Enter argument 2 :')
-                if part not in ['ANY', 'NONE', '1']:
+                if count not in ['ANY', 'NONE', '1']:
                     print('Please enter correct values.')
                     continue
                 items = input('Enter argument 3 :')
@@ -428,7 +423,7 @@ class AssociationRules:
                 for i in items:
                     s = i.split('_')
                     if len(s) > 1:
-                        n = s[0].upper() + '_' + s[1][0].upper() + s[1][1:].upper()
+                        n = s[0].upper() + '_' + s[1][0].upper() + s[1][1:].lower()
                         vitems.append(n)
                     else:
                         vitems.append(i)
@@ -436,7 +431,16 @@ class AssociationRules:
                 rules, number = self.template1(part, count, vitems)
                 self.print_query_output(rules, number)
             elif template == '2':
-                pass
+                part = input('Enter argument 1 :')
+                if part not in ['RULE', 'BODY', 'HEAD']:
+                    print('Please enter correct values.')
+                    continue
+                size = input('Enter argument 2 :')
+                if size.isdigit() == False:
+                    print('Please enter correct values.')
+                    continue
+                rules, number = self.template2(part, size)
+                self.print_query_output(rules, number)
             elif template == '3':
                 pass
 
