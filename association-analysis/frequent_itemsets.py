@@ -339,8 +339,24 @@ class AssociationRules:
 
         return result, len(result)
 
-    def template2(self, arg1, arg2):
-        return
+
+    def template2(self, part, size):
+        result = []
+        if part == 'RULE':
+            for rule in self.rules:
+                itemset = rule[0].union(rule[1])
+                if len(itemset) >= size:
+                    result.append(rule)
+        elif part == 'BODY':
+            for rule in self.rules:
+                if len(rule[0]) >= size:
+                    result.append(rule)
+        elif part == 'HEAD':
+            for rule in self.rules:
+                if len(rule[1]) >= size:
+                    result.append(rule)
+        return result, len(result)
+
 
     def template3(self, type, *args):
         return
@@ -358,8 +374,6 @@ class AssociationRules:
 
         print('\nConfidence is set to : ' + str(self.confidence) + '%')
         # Rule is : BODY -> HEAD
-        BODY = []
-        HEAD = []
 
         # iterate through all frequent itemsets of length > 1
         for itemset in fi_g2:
@@ -390,8 +404,6 @@ class AssociationRules:
                         r_head = (set(all_items) - set(subset))
                         rule = [r_body, r_head]
                         self.rules.append(rule)
-                        BODY.append(r_body)
-                        HEAD.append(r_head)
 
         return
 
@@ -421,11 +433,19 @@ class AssociationRules:
                     else:
                         vitems.append(i)
 
+                rules, number = self.template1(part, count, vitems)
+                self.print_query_output(rules, number)
+            elif template == '2':
+                pass
+            elif template == '3':
+                pass
 
-            elif template == '2'
+        return
 
-            elif template == '3'
-
+    def print_query_output(self, rules, number):
+        print('Total rules for this query : ' + str(number))
+        for rule in rules:
+            print(str(rule[0]) + '\t->\t' + str(rule[1]) + '\n')
         return
 
     def log_rules(self):
