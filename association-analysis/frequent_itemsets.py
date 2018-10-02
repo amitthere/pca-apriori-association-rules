@@ -1,4 +1,5 @@
 import numpy as np
+import copy
 from itertools import combinations
 
 
@@ -225,8 +226,118 @@ class AssociationRules:
         self.fi = frequent_itemsets
         self.rules = []
 
-    def template1(self, arg1, arg2, arg3):
+    def check_items(self, rule, il):
+
         return
+
+    def template1(self, part, count, items):
+        result = []
+        if part == 'RULE':
+            if count == 'ANY':
+                for rule in self.rules:
+                    for item in items:
+                        sitem = set((item,))
+                        if sitem.issubset(rule[0]) or sitem.issubset(rule[1]):
+                            result.append(rule)
+                            break
+            elif count == 'NONE':
+                result = copy.deepcopy(self.rules)
+                for rule in self.rules:
+                    for item in items:
+                        sitem = set((item,))
+                        if sitem.issubset(rule[0]) or sitem.issubset(rule[1]):
+                            result.remove(rule)
+                            break
+            elif count == 1:
+                # use enumerate to collect rule indices, avoid duplicates
+                for rule in self.rules:
+                    for item in items:
+                        sitem = set((item,))
+                        if sitem.issubset(rule[0]) or sitem.issubset(rule[1]):
+                            temp_items = copy.deepcopy(items)
+                            temp_items.remove(item)
+                            # if self.check_items(rule, temp_items):
+
+                            # check if rest of the items are in the rule
+                            for ri in temp_items:
+                                ritem = set((item,))
+                                if ritem.issubset(rule[0]) or ritem.issubset(rule[1]):
+                                    break
+                            else:   # this else block is ONLY executed if above for loop did NOT break
+                                result.append(rule)
+                                continue
+                            break   # this executes ONLY if inner loop DID break,
+
+        elif part == 'BODY':
+            if count == 'ANY':
+                for rule in self.rules:
+                    for item in items:
+                        sitem = set((item,))
+                        if sitem.issubset(rule[0]):
+                            result.append(rule)
+                            break
+            elif count == 'NONE':
+                result = copy.deepcopy(self.rules)
+                for rule in self.rules:
+                    for item in items:
+                        sitem = set((item,))
+                        if sitem.issubset(rule[0]):
+                            result.remove(rule)
+                            break
+            elif count == 1:
+                for rule in self.rules:
+                    for item in items:
+                        sitem = set((item,))
+                        if sitem.issubset(rule[0]):
+                            temp_items = copy.deepcopy(items)
+                            temp_items.remove(item)
+                            # if self.check_items(rule, temp_items):
+
+                            # check if rest of the items are in the rule
+                            for ri in temp_items:
+                                ritem = set((item,))
+                                if ritem.issubset(rule[0]):
+                                    break
+                            else:   # this else block is ONLY executed if above for loop did NOT break
+                                result.append(rule)
+                                continue
+                            break
+        elif part == 'HEAD':
+            if count == 'ANY':
+                for rule in self.rules:
+                    for item in items:
+                        sitem = set((item,))
+                        if sitem.issubset(rule[1]):
+                            result.append(rule)
+                            break
+            elif count == 'NONE':
+                result = copy.deepcopy(self.rules)
+                for rule in self.rules:
+                    for item in items:
+                        sitem = set((item,))
+                        if sitem.issubset(rule[1]):
+                            result.remove(rule)
+                            break
+            elif count == 1:
+                for rule in self.rules:
+                    for item in items:
+                        sitem = set((item,))
+                        if sitem.issubset(rule[1]):
+                            temp_items = copy.deepcopy(items)
+                            temp_items.remove(item)
+                            # if self.check_items(rule, temp_items):
+
+                            # check if rest of the items are in the rule
+                            for ri in temp_items:
+                                ritem = set((item,))
+                                if ritem.issubset(rule[1]):
+                                    break
+                            else:   # this else block is ONLY executed if above for loop did NOT break
+                                result.append(rule)
+                                continue
+                            break
+
+        return result, len(result)
 
     def template2(self, arg1, arg2):
         return
@@ -281,7 +392,39 @@ class AssociationRules:
                         self.rules.append(rule)
                         BODY.append(r_body)
                         HEAD.append(r_head)
-                        # print('RULE: '+ str(r_body) + str(deno) + ' -> ' + str(r_head) + str(num))
+
+        return
+
+    def template_queries(self):
+
+        while True:
+            template = input('Enter Template Number: \nEnter 0 to exit')
+            if template == '0':
+                break
+            elif template == '1':
+                part = input('Enter argument 1 :')
+                if part not in ['RULE', 'BODY', 'HEAD']:
+                    print('Please enter correct values.')
+                    continue
+                count = input('Enter argument 2 :')
+                if part not in ['ANY', 'NONE', '1']:
+                    print('Please enter correct values.')
+                    continue
+                items = input('Enter argument 3 :')
+                items = items.split()
+                vitems = []
+                for i in items:
+                    s = i.split('_')
+                    if len(s) > 1:
+                        n = s[0].upper() + '_' + s[1][0].upper() + s[1][1:].upper()
+                        vitems.append(n)
+                    else:
+                        vitems.append(i)
+
+
+            elif template == '2'
+
+            elif template == '3'
 
         return
 
@@ -316,7 +459,9 @@ def main():
     ar = AssociationRules(confidence, frequentitems[0])
     ar.generate_rules()
     ar.log_rules()
-    print('Length', len(ar.rules))
+    print('Total Number of Rules generated : ', len(ar.rules))
+
+    ar.template_queries()
 
     return
 
