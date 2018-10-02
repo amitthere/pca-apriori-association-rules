@@ -26,12 +26,13 @@ def matrix_manipulation(file):
     and eigen values and eigen vectors, normalized matrix and last column
     for labels in scatter plot
     """
-    matrix = file.data[:,0:4]
+    cols = file.data
+    ncols = cols.shape[1]
+    matrix = cols[:,0:ncols-1]
     m1 = np.array(matrix.astype(np.float))
     last_col = file.data[:,-1]
     last_col_m = np.asmatrix(last_col, dtype='U')
     last = last_col_m.transpose()
-    m1_transp = m1.transpose()
     mean_vector = np.mean(m1, axis = 0)
     centered = m1 - mean_vector
     return m1, last, centered
@@ -101,26 +102,9 @@ def tsne_function(file):
     tsne_y = tsne_y1.astype(float)
     return tsne_x, tsne_y
 
-def plot_scatter(result, last):
+def plot_scatter(x, y, last, type):
     """
-    Plots a scatter plot for PCA data
-    """
-    fig = plt.figure()
-    asd = np.ravel(last)
-    labels = []
-    for labl in asd:
-        if labl not in labels:
-            labels.append(labl)
-    sb.scatterplot(result[:,0], result[:,1], hue = asd)
-    plt.xlabel('Component 1')
-    plt.xlabel('Component 2')
-    plt.title('Principle Component Analysis')
-    plt.legend()
-    plt.show()
-
-def plot_scatter_svd_tsne(x, y, last, type):
-    """
-    Plots scatter plot for SVD and TSNE data
+    Plots scatter plot for PCA, SVD and T-SNE data
     """
     fig = plt.figure()
     asd = np.ravel(last)
@@ -128,28 +112,38 @@ def plot_scatter_svd_tsne(x, y, last, type):
     for labl in asd:
         if labl not in labels:
             labels.append(labl)
-    sb.scatterplot(x, y, hue=asd)
+    scatter = sb.scatterplot(x, y, hue=asd)
+    plot = scatter.get_figure()
     plt.xlabel('Component 1')
     plt.ylabel('Component 2')
+    if type == 'pca':
+        plt.title('PCA - pca_c.txt')
     if type == 'svd':
-        plt.title('SVD')
+        plt.title('SVD - pca_c.txt')
     elif type == 'tsne':
-        plt.title('TSNE')
+        plt.title('TSNE - pca_c.txt')
     plt.legend()
     plt.show()
+    """if type == 'pca':
+        plot.savefig('../dimensionality-reduction-plots/PCA/pca_c/PCA.png')
+    if type == 'svd':
+        plot.savefig('../dimensionality-reduction-plots/SVD/pca_c/SVD.png')
+    if type == 'tsne':
+        plot.savefig('../dimensionality-reduction-plots/T-SNE/pca_c/T-SNE.png')"""
 
 def main():
-    file1 = Import("../data/pca_a.txt", "TAB")
-    file2 = Import("../data/pca_b.txt", "TAB")
-    file3 = Import("../data/pca_c.txt", "TAB")
 
-    eig_matrix, last = eigen_values(file1)
-    pca_data = final_pca_matrix(eig_matrix, file1)
-    plot_scatter(pca_data, last)
-    svd_x, svd_y = svd_function(file1)
-    plot_scatter_svd_tsne(svd_x, svd_y, last, 'svd')
-    tsne_x, tsne_y = tsne_function(file1)
-    plot_scatter_svd_tsne(tsne_x, tsne_y, last, 'tsne')
+    file0 = Import("../data/pca_c.txt", "TAB")
+
+    eig_matrix, last = eigen_values(file0)
+    pca_data = final_pca_matrix(eig_matrix, file0)
+    pca_data_x = pca_data[:,0]
+    pca_data_y = pca_data[:,1]
+    plot_scatter(pca_data_x, pca_data_y, last, 'pca')
+    svd_x, svd_y = svd_function(file0)
+    plot_scatter(svd_x, svd_y, last, 'svd')
+    tsne_x, tsne_y = tsne_function(file0)
+    plot_scatter(tsne_x, tsne_y, last, 'tsne')
 
 if __name__=="__main__":
     main()
