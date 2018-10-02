@@ -53,6 +53,7 @@ class AssociationRules:
                     # subset is BODY here and (itemset - subset) is HEAD
                     # since both must be frequent, get their support from all_frequent_itemsets dictionary
 
+
                     # if rule has enough confidence, add it to the set of rules
                     if confidence >= (self.confidence/100.0):
                         r_body = subset

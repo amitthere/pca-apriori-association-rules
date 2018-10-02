@@ -218,20 +218,107 @@ class FrequentItemsets:
         return merged_set
 
 
+class AssociationRules:
+
+    def __init__(self, confidence, frequent_itemsets):
+        self.confidence = confidence
+        self.fi = frequent_itemsets
+        self.rules = []
+
+    def template1(self, arg1, arg2, arg3):
+        return
+
+    def template2(self, arg1, arg2):
+        return
+
+    def template3(self, type, *args):
+        return
+
+    def get_itemset_support(self, itemset, data):
+        """ Compute support for single k-itemset """
+        support = 0
+        for row in range(data.shape[0]):
+            if itemset.issubset(data[row]):
+                support = support + 1
+        return support
+
+    def generate_rules(self):
+        fi_g2 = {k:v for k,v in self.fi.all_frequent_itemsets.items() if k not in self.fi.frequent_itemsets_1}
+
+        print('\nConfidence is set to : ' + str(self.confidence) + '%')
+        # Rule is : BODY -> HEAD
+        BODY = []
+        HEAD = []
+
+        # iterate through all frequent itemsets of length > 1
+        for itemset in fi_g2:
+
+            # get all 1-itemsets in the 'itemset' of length > 1
+            all_items = itemset.split(',')
+
+            # for each 1-itemset, do sequentially
+            for index in range(1, len(all_items)):
+
+                # get all subsets of length 1 to len(itemset)
+                subsets = set(combinations(all_items, index))
+
+                for subset in subsets:
+
+                    # option 1
+                    num = self.get_itemset_support(set(all_items), self.fi.data)
+                    deno = self.get_itemset_support(set(subset), self.fi.data)
+                    confidence = float(num)/float(deno)
+
+                    # option 2
+                    # subset is BODY here and (itemset - subset) is HEAD
+                    # since both must be frequent, get their support from all_frequent_itemsets dictionary
+
+                    # if rule has enough confidence, add it to the set of rules
+                    if (confidence*100) >= self.confidence:
+                        r_body = set(subset)
+                        r_head = (set(all_items) - set(subset))
+                        rule = [r_body, r_head]
+                        self.rules.append(rule)
+                        BODY.append(r_body)
+                        HEAD.append(r_head)
+                        # print('RULE: '+ str(r_body) + str(deno) + ' -> ' + str(r_head) + str(num))
+
+        return
+
+    def log_rules(self):
+        file = r'../output/rules-support-' + str(self.fi.support) + '-confidence-' + str(self.confidence) + '.txt'
+        with open(file, 'w') as f:
+            for rule in self.rules:
+                f.write(str(rule[0]) + '\t->\t' + str(rule[1]) + '\n')
+        return
+
+
+
 def main():
     importObject = Import(r'../data/associationruletestdata.txt', 'TAB')
     prefixed_data = importObject.process_data_3()
 
-    support_percentage = [70, 60, 50, 40, 30]
+    # take support as user input
+    # support_percentage = [70, 60, 50, 40, 30]
+    support_percentage = [int(input("Enter minimum support score: "))]
     frequentitems = []
     for support in support_percentage:
         fi = FrequentItemsets(prefixed_data, support)
         fi.get_frequent_itemsets()
         frequentitems.append(fi)
-        print('Number of all lengths frequent itemsets: ' + str(len(fi.all_frequent_itemsets)))
+        print('Number of all lengths frequent itemsets: ' + str(len(fi.all_frequent_itemsets)) + '\n')
 
-    for f in frequentitems:
-        print('For support of '+ str(f.support) + '% total no of frequent itemsets : ' + str(len(f.all_frequent_itemsets)))
+    # for f in frequentitems:
+    #     print('For support of '+ str(f.support) + '% total no of frequent itemsets : ' + str(len(f.all_frequent_itemsets)))
+
+    # take confidence as user input
+    confidence = int(input("Enter minimum confidence score: "))
+    ar = AssociationRules(confidence, frequentitems[0])
+    ar.generate_rules()
+    ar.log_rules()
+    print('Length', len(ar.rules))
+
+    return
 
 
 if __name__ == "__main__":
