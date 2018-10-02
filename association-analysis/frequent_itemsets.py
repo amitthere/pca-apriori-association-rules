@@ -226,10 +226,6 @@ class AssociationRules:
         self.fi = frequent_itemsets
         self.rules = []
 
-    def check_items(self, rule, il):
-
-        return
-
     def template1(self, part, count, items):
         result = []
         if part == 'RULE':
@@ -353,19 +349,32 @@ class AssociationRules:
         return result, len(result)
 
     def template3(self, type, *args):
+        result = []
         if type == '1or1':
-            pass
+            O1, C1 = self.template1(args[0], args[1], args[2])
+            O2, C2 = self.template1(args[3], args[4], args[5])
+            result = O1 + [i for i in O2 if i not in O1]
         elif type == '1and1':
-            pass
+            O1, C1 = self.template1(args[0], args[1], args[2])
+            O2, C2 = self.template1(args[3], args[4], args[5])
+            result = [i for i in O1 if i in O2]
         elif type == '1or2':
-            pass
+            O1, C1 = self.template1(args[0], args[1], args[2])
+            O2, C2 = self.template2(args[3], args[4])
+            result = O1 + [i for i in O2 if i not in O1]
         elif type == '1and2':
-            pass
+            O1, C1 = self.template1(args[0], args[1], args[2])
+            O2, C2 = self.template2(args[3], args[4])
+            result = [i for i in O1 if i in O2]
         elif type == '2or2':
-            pass
+            O1, C1 = self.template2(args[0], args[1])
+            O2, C2 = self.template2(args[2], args[3])
+            result = O1 + [i for i in O2 if i not in O1]
         elif type == '2and2':
-            pass
-        return
+            O1, C1 = self.template2(args[0], args[1])
+            O2, C2 = self.template2(args[2], args[3])
+            result = [i for i in O1 if i in O2]
+        return result, len(result)
 
     def get_itemset_support(self, itemset, data):
         """ Compute support for single k-itemset """
@@ -408,6 +417,38 @@ class AssociationRules:
 
         return
 
+    def read_template1_args(self):
+        part = input('Enter argument 1 :')
+        if part not in ['RULE', 'BODY', 'HEAD']:
+            print('Please enter correct values.')
+            return None
+        count = input('Enter argument 2 :')
+        if count not in ['ANY', 'NONE', '1']:
+            print('Please enter correct values.')
+            return None
+        items = input('Enter argument 3 :')
+        items = items.split()
+        vitems = []
+        for i in items:
+            s = i.split('_')
+            if len(s) > 1:
+                n = s[0].upper() + '_' + s[1][0].upper() + s[1][1:].lower()
+                vitems.append(n)
+            else:
+                vitems.append(i)
+        return part,count,vitems
+
+    def read_template2_args(self):
+        part = input('Enter argument 1 :')
+        if part not in ['RULE', 'BODY', 'HEAD']:
+            print('Please enter correct values.')
+            return None
+        size = input('Enter argument 2 :')
+        if size.isdigit() == False:
+            print('Please enter correct values.')
+            return None
+        return part, size
+
     def template_queries(self):
 
         while True:
@@ -415,36 +456,19 @@ class AssociationRules:
             if template == '0':
                 break
             elif template == '1':
-                part = input('Enter argument 1 :')
-                if part not in ['RULE', 'BODY', 'HEAD']:
-                    print('Please enter correct values.')
+                try:
+                    part, count, items = self.read_template1_args()
+                except:
                     continue
-                count = input('Enter argument 2 :')
-                if count not in ['ANY', 'NONE', '1']:
-                    print('Please enter correct values.')
-                    continue
-                items = input('Enter argument 3 :')
-                items = items.split()
-                vitems = []
-                for i in items:
-                    s = i.split('_')
-                    if len(s) > 1:
-                        n = s[0].upper() + '_' + s[1][0].upper() + s[1][1:].lower()
-                        vitems.append(n)
-                    else:
-                        vitems.append(i)
 
-                rules, number = self.template1(part, count, vitems)
+                rules, number = self.template1(part, count, items)
                 self.print_query_output(rules, number)
             elif template == '2':
-                part = input('Enter argument 1 :')
-                if part not in ['RULE', 'BODY', 'HEAD']:
-                    print('Please enter correct values.')
+                try:
+                    part, size = self.read_template2_args()
+                except:
                     continue
-                size = input('Enter argument 2 :')
-                if size.isdigit() == False:
-                    print('Please enter correct values.')
-                    continue
+
                 rules, number = self.template2(part, size)
                 self.print_query_output(rules, number)
             elif template == '3':
