@@ -249,7 +249,6 @@ class AssociationRules:
                             result.remove(rule)
                             break
             elif count == '1':
-                # use enumerate to collect rule indices, avoid duplicates
                 for rule in self.rules:
                     for item in items:
                         sitem = set((item,))
@@ -336,7 +335,6 @@ class AssociationRules:
 
         return result, len(result)
 
-
     def template2(self, part, size):
         result = []
         if part == 'RULE':
@@ -354,9 +352,18 @@ class AssociationRules:
                     result.append(rule)
         return result, len(result)
 
-
     def template3(self, type, *args):
         if type == '1or1':
+            pass
+        elif type == '1and1':
+            pass
+        elif type == '1or2':
+            pass
+        elif type == '1and2':
+            pass
+        elif type == '2or2':
+            pass
+        elif type == '2and2':
             pass
         return
 
@@ -383,21 +390,20 @@ class AssociationRules:
             # for each 1-itemset, do sequentially
             for index in range(1, len(all_items)):
 
-                # get all subsets of length 1 to len(itemset)
+                # get all subsets of length 1 to len(itemset) in this for loop
                 subsets = set(combinations(all_items, index))
 
                 for subset in subsets:
 
-                    # option 1
                     num = self.get_itemset_support(set(all_items), self.fi.data)
                     deno = self.get_itemset_support(set(subset), self.fi.data)
                     confidence = float(num)/float(deno)
 
                     # if rule has enough confidence, add it to the set of rules
                     if (confidence*100) >= self.confidence:
-                        r_head = set(subset)
-                        r_body = (set(all_items) - set(subset))
-                        rule = [r_head, r_body]
+                        r_head = set(subset)                        # X
+                        r_body = (set(all_items) - set(subset))     # Y
+                        rule = [r_head, r_body]                     # X -> Y - X
                         self.rules.append(rule)
 
         return
@@ -405,7 +411,7 @@ class AssociationRules:
     def template_queries(self):
 
         while True:
-            template = input('Enter Template Number: \nEnter 0 to exit')
+            template = input('Enter Template Number (0 to exit) :')
             if template == '0':
                 break
             elif template == '1':
@@ -449,7 +455,7 @@ class AssociationRules:
     def print_query_output(self, rules, number):
         print('Total rules for this query : ' + str(number))
         for rule in rules:
-            print(str(rule[0]) + '\t->\t' + str(rule[1]) + '\n')
+            print(str(rule[0]) + '\t->\t' + str(rule[1]))
         return
 
     def log_rules(self):
