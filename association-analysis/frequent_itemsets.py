@@ -336,15 +336,15 @@ class AssociationRules:
         if part == 'RULE':
             for rule in self.rules:
                 itemset = rule[0].union(rule[1])
-                if len(itemset) >= size:
+                if len(itemset) >= int(size):
                     result.append(rule)
         elif part == 'HEAD':
             for rule in self.rules:
-                if len(rule[0]) >= size:
+                if len(rule[0]) >= int(size):
                     result.append(rule)
         elif part == 'BODY':
             for rule in self.rules:
-                if len(rule[1]) >= size:
+                if len(rule[1]) >= int(size):
                     result.append(rule)
         return result, len(result)
 
@@ -490,14 +490,15 @@ class AssociationRules:
                         arg2, arg3 = self.read_template2_args()
                         rules, number = self.template3(type, arg0, arg1, arg2, arg3)
                 except:
+                    print('Please enter correct values.')
                     continue
                 self.print_query_output(rules, number)
         return
 
     def print_query_output(self, rules, number):
-        print('Total rules for this query : ' + str(number))
         for rule in rules:
             print(str(rule[0]) + '\t->\t' + str(rule[1]))
+        print('Total rules for this query : ' + str(number))
         return
 
     def log_rules(self):
@@ -510,7 +511,7 @@ class AssociationRules:
 
 
 def main():
-    importObject = Import(r'../data/associationruletestdata.txt', 'TAB')
+    importObject = Import(r'associationruletestdata.txt', 'TAB')
     prefixed_data = importObject.process_data_3()
 
     # take support as user input
